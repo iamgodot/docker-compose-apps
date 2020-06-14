@@ -8,7 +8,7 @@ Also, to solve the custom configuration issue for Nginx and PHP, I also add anot
 
 - [custom_settings.conf](./nginx-conf/custom_settings.conf)  
 
-- [uploads.ini](./uploads.ini)
+- [custom_php_configs.ini](./custom_php_configs.ini)
 
 The idea comes from discussions of relative Github issues: [docker-compose.yml and client_max_body_size](https://github.com/nginx-proxy/nginx-proxy/issues/690) & [Increase PHP file upload limit](https://github.com/docker-library/wordpress/issues/10)
 
