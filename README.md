@@ -1,31 +1,33 @@
-# WordPress Bootstrap
+# Docker Compose Apps
 
-## INTRO
+## Intro
 
-This repo keeps a handy copy of configuration and script files for bootstrapping of WordPress with docker-compose. And it's basically from [how-to-install-wordpress-with-docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose).
+This repo keeps a collection of docker compose config files for different self-hosting apps.
 
-Also, to solve the custom configuration issue for Nginx and PHP, I also add another two files: 
+## Usage
 
-- [custom_settings.conf](./nginx-conf/custom_settings.conf)  
+1. Clone the repo to your server, and copy the app folder to the right place.
 
-- [custom_php_configs.ini](./custom_php_configs.ini)
+2. Setup `.env` file accordingly.
 
-The idea comes from discussions of relative Github issues: [docker-compose.yml and client_max_body_size](https://github.com/nginx-proxy/nginx-proxy/issues/690) & [Increase PHP file upload limit](https://github.com/docker-library/wordpress/issues/10)
+3. Make sure docker and docker-compose are properly installed, then run `docker-compose run -d` to start the service.
 
----
+4. To stop the service, run `docker-compose stop`.
 
-## USAGE
+5. To remove the service, run `docker-compose kill && docker-compose rm`.
 
-1. Read [how-to-install-wordpress-with-docker-compose](https://www.digitalocean.com/community/tutorials/how-to-install-wordpress-with-docker-compose) first, then clone this repo to your server.
+## Apps
 
-2. Replace `example.com` in [docker-compose.yml](./docker-compose.yml) and [nginx.conf](./nginx-conf/nginx.conf) with your own domain.
+### wordpress
 
-3. Update `WD_DIR` in [ssl_renew.sh](./ssl_renew.sh).
+Two additional config files are intended to solve the custom issues: 
 
-4. Use docker-compose to deploy WordPress.
+- [For Nginx](wordpress/nginx-conf/custom_settings.conf)  
 
----
+- [For Php](wordpress/php-conf/custom_settings.ini)
 
-## TODO
+References from Github: 
 
-- [ ] The whole thing will be packed into an Ansible playbook in the future for time saving.
+- [Docker-compose.yml and client_max_body_size](https://github.com/nginx-proxy/nginx-proxy/issues/690)
+
+- [Increase PHP file upload limit](https://github.com/docker-library/wordpress/issues/10)
