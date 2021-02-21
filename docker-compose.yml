@@ -3,66 +3,52 @@ version: '3'
 services:
   db:
     image: mysql:8.0
-    container_name: db
     restart: unless-stopped
     env_file: .env
-    environment:
-      - MYSQL_DATABASE=wordpress
     volumes: 
-      - dbdata:/var/lib/mysql
+      - db:/var/lib/mysql
     command: '--default-authentication-plugin=mysql_native_password'
     networks:
-      - app-network
+      - default
 
-  wordpress:
+  app:
     depends_on: 
       - db
-    image: wordpress:5.4.1-fpm-alpine
-    container_name: wordpress
+    image: wordpress:fpm-alpine
     restart: unless-stopped
-    env_file: .env
     environment:
       - WORDPRESS_DB_HOST=db:3306
       - WORDPRESS_DB_USER=$MYSQL_USER
       - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
-      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_NAME=$MYSQL_DATABASE
     volumes:
-      - wordpress:/var/www/html
-      - ./custom_php_configs.ini:/usr/local/etc/php/conf.d/custom_php_configs.ini
+      - app:/var/www/html
+      - ./php-conf:/usr/local/etc/php/conf.d
     networks:
-      - app-network
+      - default
 
   webserver:
     depends_on:
       - wordpress
-    image: nginx:1.19.0-alpine
-    container_name: webserver
+    image: nginx:alpine
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
     volumes:
-      - wordpress:/var/www/html
+      - app:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
-      - certbot-etc:/etc/letsencrypt
+    environment:
+      - VIRTUAL_HOST=$VIRTUAL_HOST
+      - LETSENCRYPT_HOST=$LETSENCRYPT_HOST
+      - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
     networks:
-      - app-network
-
-  certbot:
-    depends_on:
-      - webserver
-    image: certbot/certbot
-    container_name: certbot
-    volumes:
-      - certbot-etc:/etc/letsencrypt
-      - wordpress:/var/www/html
-    command: certonly --webroot --webroot-path=/var/www/html --email xzyduoduo@126.com --agree-tos --no-eff-email --force-renewal -d example.com -d www.example.com
+      - default
+      - proxy-tier
 
 volumes:
-  certbot-etc:
-  wordpress:
-  dbdata:
+  app:
+  db:
 
 networks:
-  app-network:
-    driver: bridge
+  default:
+  proxy-tier:
+    external:
+      name: nginx-proxy_default
