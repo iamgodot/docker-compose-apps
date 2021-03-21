@@ -1,0 +1,68 @@
+version: '3'
+
+services:
+  db:
+    image: mariadb
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - db:/var/lib/mysql
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    networks:
+      - default
+
+  redis:
+    image: redis:alpine
+    restart: unless-stopped
+    networks:
+      - default
+
+  app:
+    depends_on:
+      - db
+      - redis
+    image: nextcloud:fpm-alpine
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+    volumes:
+      - app:/var/www/html
+    networks:
+      - default
+
+  webserver:
+    depends_on:
+      - app
+    image: nginx:alpine
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - app:/var/www/html:ro
+      - ./nginx-conf:/etc/nginx/conf.d
+    networks:
+      - default
+      - proxy-tier
+
+  cron:
+    depends_on:
+      - db
+      - redis
+    image: nextcloud:fpm-alpine
+    restart: unless-stopped
+    volumes:
+      - app:/var/www/html
+    entrypoint: /cron.sh
+    networks:
+      - default
+
+volumes:
+  db:
+  app:
+
+networks:
+  default:
+  proxy-tier:
+    external:
+      name: nginx-proxy_default
