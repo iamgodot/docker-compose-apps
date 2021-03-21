@@ -16,11 +16,7 @@ services:
       - db
     image: wordpress:fpm-alpine
     restart: unless-stopped
-    environment:
-      - WORDPRESS_DB_HOST=db:3306
-      - WORDPRESS_DB_USER=$MYSQL_USER
-      - WORDPRESS_DB_PASSWORD=$MYSQL_PASSWORD
-      - WORDPRESS_DB_NAME=$MYSQL_DATABASE
+    env_file: .env
     volumes:
       - app:/var/www/html
       - ./php-conf:/usr/local/etc/php/conf.d
@@ -32,13 +28,10 @@ services:
       - wordpress
     image: nginx:alpine
     restart: unless-stopped
+    env_file: .env
     volumes:
       - app:/var/www/html
       - ./nginx-conf:/etc/nginx/conf.d
-    environment:
-      - VIRTUAL_HOST=$VIRTUAL_HOST
-      - LETSENCRYPT_HOST=$LETSENCRYPT_HOST
-      - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
     networks:
       - default
       - proxy-tier
